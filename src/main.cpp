@@ -21,7 +21,8 @@
 enum Pin {
     bucket_servo_pin = 10,
     top_servo_pin = 9,
-    bottom_servo_pin = 7,
+    bottom_servo_pin = 6,
+    rotation_servo_pin = 7,
     color_sensor_backlight_pin = 5
 };
 
@@ -31,7 +32,29 @@ enum Color {
     yellow = 2
 };
 
-Servo bucket_servo, top_servo, bottom_servo;
+enum RotationAngle {
+    input_hole = 0,
+    blue_hole = 60,
+    red_hole = 90,
+    yellow_hole = 120
+};
+
+enum BottomAngle {
+    bottom_low = 45,
+    bottom_high = 80
+};
+
+enum TopAngle {
+    top_low = 100,
+    top_high = 30
+};
+
+enum BucketAngle {
+    bucket_low = 80,
+    bucket_high = 150
+};
+
+Servo bucket_servo, top_servo, bottom_servo, rotation_servo;
 
 TroykaColorSensor color_sensor;
 
@@ -40,6 +63,7 @@ void setup() {
     bucket_servo.attach(bucket_servo_pin);
     top_servo.attach(top_servo_pin);
     bottom_servo.attach(bottom_servo_pin);
+    rotation_servo.attach(rotation_servo_pin);
 
     // Initialize the color sensor
     color_sensor.begin();
@@ -65,23 +89,53 @@ Color identify_color(RGB rgb) {
 }
 
 void loop() {
+    // Raise
+    top_servo.write(top_low);
+    bottom_servo.write(bottom_high);
+    delay(500);
+    // Rotate to input hole
+    rotation_servo.write(input_hole);
+    delay(2000);
+    // Lower
+    bucket_servo.write(bucket_high);
+    top_servo.write(top_low);
+    bottom_servo.write(bottom_low);
+    delay(1000);
+    // Grab the ball
+    bucket_servo.write(bucket_low);
+    delay(1000);
+    // Raise
+    top_servo.write(top_high);
+    bottom_servo.write(bottom_high);
+    delay(1000);
     // Get color from the sensor
     RGB rgb = color_sensor.colorRead();
     Color color = identify_color(rgb);
     switch (color) {
     case blue:
-        // TODO: Rotate to blue hole
+        // Rotate to blue hole
+        rotation_servo.write(blue_hole);
         break;
     
     case red:
-        // TODO: Rotate to red hole
+        // Rotate to red hole
+        rotation_servo.write(red_hole);
         break;
     
     case yellow:
-        // TODO: Rotate to yellow hole
+        // Rotate to yellow hole
+        rotation_servo.write(yellow_hole);
         break;
     
     default:
         break;
     }
+    delay(2000);
+    // Lower
+    top_servo.write(top_low);
+    bottom_servo.write(bottom_low);
+    delay(1000);
+    // Release the ball
+    bucket_servo.write(bucket_low);
+    delay(1000);
 }
