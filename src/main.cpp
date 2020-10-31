@@ -40,18 +40,18 @@ enum RotationAngle {
 };
 
 enum BottomAngle {
-    bottom_low = 45,
-    bottom_high = 80
+    bottom_low = 52,
+    bottom_high = 70
 };
 
 enum TopAngle {
-    top_low = 100,
-    top_high = 30
+    top_low = 15,
+    top_high = 0
 };
 
 enum BucketAngle {
-    bucket_low = 80,
-    bucket_high = 150
+    bucket_grab = 20,
+    bucket_release = 120
 };
 
 Servo bucket_servo, top_servo, bottom_servo, rotation_servo;
@@ -88,26 +88,38 @@ Color identify_color(RGB rgb) {
     return yellow;
 }
 
+// Rotates servo smoothly
+void smooth_servo_rotate(Servo servo, int angle, float rate) {
+    int initial_angle = servo.read();
+    int diff = angle - initial_angle;
+    if (diff == 0) {
+        return;
+    }
+    if (diff > 0) {
+        for(float a = initial_angle; a <= angle; a += rate) {
+            servo.write((int) a);
+            delay(10);
+        }
+        return;
+    }
+    for(float a = initial_angle; a >= angle; a -= rate) {
+        servo.write((int) a);
+        delay(10);
+    }
+    return;
+}
+
 void loop() {
     // Raise
-    top_servo.write(top_low);
-    bottom_servo.write(bottom_high);
-    delay(500);
-    // Rotate to input hole
-    rotation_servo.write(input_hole);
-    delay(2000);
+    smooth_servo_rotate(bottom_servo, bottom_high, 0.5);
+    smooth_servo_rotate(top_servo, top_high, 0.5);
+    smooth_servo_rotate(bucket_servo, bucket_release, 0.5);
     // Lower
-    bucket_servo.write(bucket_high);
-    top_servo.write(top_low);
-    bottom_servo.write(bottom_low);
-    delay(1000);
-    // Grab the ball
-    bucket_servo.write(bucket_low);
-    delay(1000);
-    // Raise
-    top_servo.write(top_high);
-    bottom_servo.write(bottom_high);
-    delay(1000);
+    smooth_servo_rotate(top_servo, top_low, 0.5);
+    smooth_servo_rotate(bottom_servo, bottom_low, 0.5);
+    
+    // Grab
+    smooth_servo_rotate(bucket_servo, bucket_grab, 0.5);
     // Get color from the sensor
     RGB rgb = color_sensor.colorRead();
     Color color = identify_color(rgb);
@@ -130,12 +142,5 @@ void loop() {
     default:
         break;
     }
-    delay(2000);
-    // Lower
-    top_servo.write(top_low);
-    bottom_servo.write(bottom_low);
-    delay(1000);
-    // Release the ball
-    bucket_servo.write(bucket_low);
-    delay(1000);
+    
 }
