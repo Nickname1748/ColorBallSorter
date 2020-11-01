@@ -21,9 +21,9 @@
 enum Pin {
     bucket_servo_pin = 10,
     top_servo_pin = 9,
-    bottom_servo_pin = 6,
-    rotation_servo_pin = 7,
-    color_sensor_backlight_pin = 5
+    bottom_servo_pin = 7,
+    rotation_servo_pin = 6,
+    color_sensor_backlight_pin = 5  
 };
 
 enum Color {
@@ -117,7 +117,6 @@ void loop() {
     // Lower
     smooth_servo_rotate(top_servo, top_low, 0.5);
     smooth_servo_rotate(bottom_servo, bottom_low, 0.5);
-    
     // Grab
     smooth_servo_rotate(bucket_servo, bucket_grab, 0.5);
     // Get color from the sensor
@@ -126,21 +125,27 @@ void loop() {
     switch (color) {
     case blue:
         // Rotate to blue hole
-        rotation_servo.write(blue_hole);
+        smooth_servo_rotate(rotation_servo, blue_hole, 0.5);
+        //rotation_servo.write(blue_hole);
         break;
     
     case red:
         // Rotate to red hole
-        rotation_servo.write(red_hole);
+        smooth_servo_rotate(rotation_servo, red_hole, 0.5);
+        //rotation_servo.write(red_hole);
         break;
     
     case yellow:
         // Rotate to yellow hole
-        rotation_servo.write(yellow_hole);
+        smooth_servo_rotate(rotation_servo, yellow_hole, 0.5);
+        //rotation_servo.write(yellow_hole);
         break;
     
     default:
         break;
     }
-    
+    // Release
+    smooth_servo_rotate(bucket_servo, bucket_release, 0.5);
+    // Rotate to input
+    smooth_servo_rotate(rotation_servo, input_hole, 0.5);
 }
