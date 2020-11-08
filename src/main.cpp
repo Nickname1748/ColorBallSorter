@@ -19,9 +19,9 @@
 #include <TroykaColorSensor.h>
 
 enum Pin {
-    bucket_servo_pin = 10,
-    top_servo_pin = 9,
-    bottom_servo_pin = 7,
+    bucket_servo_pin = 9,
+    top_servo_pin = A3,
+    bottom_servo_pin = A0,
     rotation_servo_pin = 6,
     color_sensor_backlight_pin = 5  
 };
@@ -33,24 +33,28 @@ enum Color {
 };
 
 enum RotationAngle {
-    input_hole = 0,
+    input_hole = 3,
+    init_angle = 20,
     blue_hole = 60,
     red_hole = 90,
     yellow_hole = 120
 };
 
 enum BottomAngle {
-    bottom_low = 52,
+    bottom_low = 10,
+    bottom_intermediate = 30,
     bottom_high = 70
 };
 
 enum TopAngle {
-    top_low = 15,
+    top_low = 80,
+    top_intermediate = 20,
     top_high = 0
 };
 
 enum BucketAngle {
-    bucket_grab = 20,
+    bucket_grab = 0,
+    bucket_intermediate = 60,
     bucket_release = 120
 };
 
@@ -58,8 +62,11 @@ Servo bucket_servo, top_servo, bottom_servo, rotation_servo;
 
 TroykaColorSensor color_sensor;
 
+void (*reset) (void) = 0;
+
 void setup() {
     // Initialize the servos
+    rotation_servo.write(init_angle);
     bucket_servo.attach(bucket_servo_pin);
     top_servo.attach(top_servo_pin);
     bottom_servo.attach(bottom_servo_pin);
@@ -110,15 +117,22 @@ void smooth_servo_rotate(Servo servo, int angle, float rate) {
 }
 
 void loop() {
+    // Init position
+    smooth_servo_rotate(bottom_servo, bottom_high, 0.5);
+    smooth_servo_rotate(top_servo, top_low, 0.5);
+    smooth_servo_rotate(rotation_servo, input_hole, 0.5);
+    // Lower
+    smooth_servo_rotate(bottom_servo, bottom_intermediate, 0.5);
+    smooth_servo_rotate(bucket_servo, bucket_intermediate, 0.5);
+    smooth_servo_rotate(top_servo, top_low, 0.5);
+    // Grab
+    smooth_servo_rotate(bottom_servo, bottom_low, 0.5);
+    smooth_servo_rotate(bucket_servo, bucket_grab, 0.5);
     // Raise
+    smooth_servo_rotate(bottom_servo, bottom_intermediate, 0.5);
+    smooth_servo_rotate(top_servo, top_intermediate, 0.5);
     smooth_servo_rotate(bottom_servo, bottom_high, 0.5);
     smooth_servo_rotate(top_servo, top_high, 0.5);
-    smooth_servo_rotate(bucket_servo, bucket_release, 0.5);
-    // Lower
-    smooth_servo_rotate(top_servo, top_low, 0.5);
-    smooth_servo_rotate(bottom_servo, bottom_low, 0.5);
-    // Grab
-    smooth_servo_rotate(bucket_servo, bucket_grab, 0.5);
     // Get color from the sensor
     RGB rgb = color_sensor.colorRead();
     Color color = identify_color(rgb);
@@ -126,26 +140,28 @@ void loop() {
     case blue:
         // Rotate to blue hole
         smooth_servo_rotate(rotation_servo, blue_hole, 0.5);
-        //rotation_servo.write(blue_hole);
         break;
     
     case red:
         // Rotate to red hole
         smooth_servo_rotate(rotation_servo, red_hole, 0.5);
-        //rotation_servo.write(red_hole);
         break;
     
     case yellow:
         // Rotate to yellow hole
         smooth_servo_rotate(rotation_servo, yellow_hole, 0.5);
-        //rotation_servo.write(yellow_hole);
         break;
     
     default:
         break;
     }
     // Release
+    smooth_servo_rotate(top_servo, top_intermediate, 0.5);
+    smooth_servo_rotate(bottom_servo, bottom_intermediate, 0.5);
+    smooth_servo_rotate(top_servo, top_low, 0.5);
     smooth_servo_rotate(bucket_servo, bucket_release, 0.5);
-    // Rotate to input
-    smooth_servo_rotate(rotation_servo, input_hole, 0.5);
+    //Park
+    // smooth_servo_rotate(rotation_servo, init_angle, 0.5);
+    // smooth_servo_rotate(bottom_servo, bottom_low, 0.5);
+    // reset();
 }
