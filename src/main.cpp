@@ -29,25 +29,26 @@ enum Pin {
 enum Color {
     blue = 0,
     red = 1,
-    yellow = 2
+    yellow = 2,
+    white = 3
 };
 
 enum RotationAngle {
     input_hole = 3,
     init_angle = 20,
     blue_hole = 60,
-    red_hole = 90,
+    red_hole = 95,
     yellow_hole = 120
 };
 
 enum BottomAngle {
-    bottom_low = 10,
+    bottom_low = 12,
     bottom_intermediate = 30,
     bottom_high = 70
 };
 
 enum TopAngle {
-    top_low = 80,
+    top_low = 60,
     top_intermediate = 20,
     top_high = 0
 };
@@ -83,15 +84,28 @@ void setup() {
 // Identifies color from RGB
 Color identify_color(RGB rgb) {
     // If blue component is greater than red and green components
+    Serial.print("R: ");
+    Serial.println(rgb.red);
+    Serial.print("G: ");
+    Serial.println(rgb.green);
+    Serial.print("B: ");
+    Serial.println(rgb.blue);
+    if (rgb.red > 180 && rgb.green > 180 && rgb.blue > 180) {
+        Serial.println("White");
+        return white;
+    }
     if (rgb.blue > rgb.red && rgb.blue > rgb.green) {
+        Serial.println("Blue");
         return blue;
     }
     // If red component is much greater than green and greater than blue
     // component
     if (rgb.red - 50 > rgb.green && rgb.red > rgb.blue) {
+        Serial.println("Red");
         return red;
     }
     // If red and green components are almost the same
+    Serial.println("Yellow");
     return yellow;
 }
 
