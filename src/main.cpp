@@ -38,11 +38,12 @@ enum RotationAngle {
     init_angle = 20,
     blue_hole = 60,
     red_hole = 95,
-    yellow_hole = 120
+    yellow_hole = 135
 };
 
 enum BottomAngle {
     bottom_low = 12,
+    bottom_output = 17,
     bottom_intermediate = 30,
     bottom_high = 70
 };
@@ -134,6 +135,7 @@ void loop() {
     // Init position
     smooth_servo_rotate(bottom_servo, bottom_high, 0.5);
     smooth_servo_rotate(top_servo, top_low, 0.5);
+    smooth_servo_rotate(rotation_servo, init_angle, 0.5);
     smooth_servo_rotate(rotation_servo, input_hole, 0.5);
     // Lower
     smooth_servo_rotate(bottom_servo, bottom_intermediate, 0.5);
@@ -154,28 +156,31 @@ void loop() {
     case blue:
         // Rotate to blue hole
         smooth_servo_rotate(rotation_servo, blue_hole, 0.5);
+        smooth_servo_rotate(top_servo, top_intermediate, 0.5);
+        smooth_servo_rotate(bottom_servo, bottom_output, 0.5);
+        smooth_servo_rotate(top_servo, top_low, 0.5);
+        smooth_servo_rotate(bucket_servo, bucket_release, 0.5);
         break;
     
     case red:
         // Rotate to red hole
         smooth_servo_rotate(rotation_servo, red_hole, 0.5);
+        smooth_servo_rotate(top_servo, top_intermediate, 0.5);
+        smooth_servo_rotate(bottom_servo, bottom_output, 0.5);
+        smooth_servo_rotate(top_servo, top_low, 0.5);
+        smooth_servo_rotate(bucket_servo, bucket_release, 0.5);
         break;
     
     case yellow:
         // Rotate to yellow hole
         smooth_servo_rotate(rotation_servo, yellow_hole, 0.5);
+        smooth_servo_rotate(top_servo, top_intermediate, 0.5);
+        smooth_servo_rotate(bottom_servo, bottom_output, 0.5);
+        smooth_servo_rotate(top_servo, top_low, 0.5);
+        smooth_servo_rotate(bucket_servo, bucket_release, 0.5);
         break;
     
     default:
         break;
     }
-    // Release
-    smooth_servo_rotate(top_servo, top_intermediate, 0.5);
-    smooth_servo_rotate(bottom_servo, bottom_intermediate, 0.5);
-    smooth_servo_rotate(top_servo, top_low, 0.5);
-    smooth_servo_rotate(bucket_servo, bucket_release, 0.5);
-    //Park
-    // smooth_servo_rotate(rotation_servo, init_angle, 0.5);
-    // smooth_servo_rotate(bottom_servo, bottom_low, 0.5);
-    // reset();
 }
