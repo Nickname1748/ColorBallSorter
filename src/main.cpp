@@ -49,9 +49,9 @@ enum BottomAngle {
 };
 
 enum TopAngle {
-    top_low = 60,
-    top_intermediate = 20,
-    top_high = 0
+    top_low = 140,
+    top_intermediate = 100,
+    top_high = 80
 };
 
 enum BucketAngle {
